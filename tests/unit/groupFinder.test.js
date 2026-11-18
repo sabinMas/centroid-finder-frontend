@@ -33,4 +33,21 @@ describe('findConnectedGroups', () => {
     expect(groups[0].size).to.equal(4);
     expect(groups[1].size).to.equal(1);
   });
+
+  it('finds a single-pixel group', () => {
+    const binary = new Uint8Array([0, 0, 0, 1]);
+    const groups = findConnectedGroups(binary, 2, 2);
+    expect(groups).to.deep.equal([{ size: 1, centroidX: 1, centroidY: 1 }]);
+  });
+
+  it('breaks ties by centroid x then centroid y, descending', () => {
+    // Two isolated single pixels of equal size: (x:2,y:0) and (x:0,y:0).
+    // Larger centroidX should sort first.
+    const binary = new Uint8Array([1, 0, 1, 0, 0, 0]);
+    const groups = findConnectedGroups(binary, 3, 2);
+    expect(groups).to.deep.equal([
+      { size: 1, centroidX: 2, centroidY: 0 },
+      { size: 1, centroidX: 0, centroidY: 0 },
+    ]);
+  });
 });
