@@ -12,7 +12,7 @@ import { clearRecentJobs, loadRecentJobs } from '../lib/recentJobs.js';
 
 export function VideoChooser() {
   const [videoList, setVideoList] = useState([]);
-  const [recentJobList, setRecentJobList] = useState([]);
+  const [recentJobList, setRecentJobList] = useState(loadRecentJobs);
   const navigate = useNavigate();
 
   useEffect(function loadVideoList() {
@@ -25,10 +25,6 @@ export function VideoChooser() {
       }
     }
     fetchVideoList();
-  }, []);
-
-  useEffect(function loadRecentJobHistory() {
-    setRecentJobList(loadRecentJobs());
   }, []);
 
   function handleVideoSelect(filename) {

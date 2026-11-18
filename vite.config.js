@@ -15,7 +15,6 @@ export default defineConfig({
       '/thumbnail': 'http://localhost:3000',
       '/process': 'http://localhost:3000',
       '/results': 'http://localhost:3000',
-      '/videos': 'http://localhost:3000',
     },
   },
 })

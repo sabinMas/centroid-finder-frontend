@@ -13,7 +13,7 @@ export function withLoading(WrappedComponent) {
   return function WithLoading({ loading, ...props }) {
     if (loading) {
       return (
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight={120}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 120 }}>
           <CircularProgress />
         </Box>
       );
