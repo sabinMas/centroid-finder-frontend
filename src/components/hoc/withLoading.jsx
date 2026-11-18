@@ -10,9 +10,14 @@ import { CircularProgress, Box } from '@mui/material';
  * @returns {React.ComponentType} a component accepting the same props plus `loading`
  */
 export function withLoading(WrappedComponent) {
-  // TODO(onjamm-dev): return a component that shows a spinner (Box + CircularProgress)
-  // when `loading` is true, otherwise renders <WrappedComponent {...props} />.
-  return function WithLoading(props) {
+  return function WithLoading({ loading, ...props }) {
+    if (loading) {
+      return (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 120 }}>
+          <CircularProgress />
+        </Box>
+      );
+    }
     return <WrappedComponent {...props} />;
   };
 }

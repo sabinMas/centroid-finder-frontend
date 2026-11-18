@@ -1,17 +1,18 @@
 // OWNED BY onjamm-dev. See TASKS.md "onjamm's tasks" before editing.
+import { Box, Slider, Typography } from '@mui/material';
 
 /**
  * @param {{ value: number, onChange: (value: number) => void }} props
  */
 export function ThresholdSlider({ value, onChange }) {
-  // TODO(onjamm-dev): replace with MUI <Slider>.
+  function handleSliderChange(event, newValue) {
+    onChange(newValue);
+  }
+
   return (
-    <input
-      type="range"
-      min={0}
-      max={255}
-      value={value}
-      onChange={(e) => onChange(Number(e.target.value))}
-    />
+    <Box>
+      <Typography gutterBottom>Threshold: {value}</Typography>
+      <Slider min={0} max={255} value={value} onChange={handleSliderChange} valueLabelDisplay="auto" />
+    </Box>
   );
 }

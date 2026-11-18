@@ -1,10 +1,38 @@
 // OWNED BY onjamm-dev. See TASKS.md "onjamm's tasks" before editing.
 import { createTheme } from '@mui/material/styles';
 
-// Minimal starting theme - extend freely (palette, typography, components overrides).
 export const theme = createTheme({
   palette: {
     mode: 'light',
     primary: { main: '#2e7d4f' },
+    secondary: { main: '#8d6e63' },
+    background: { default: '#f4f6f4' },
+  },
+  typography: {
+    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    h4: { fontWeight: 600 },
+    h5: { fontWeight: 600 },
+    h6: { fontWeight: 600 },
+  },
+  shape: {
+    borderRadius: 10,
+  },
+  components: {
+    MuiButton: {
+      defaultProps: { disableElevation: true },
+      styleOverrides: {
+        root: { textTransform: 'none', fontWeight: 600 },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: { borderRadius: 14 },
+      },
+    },
+    MuiListItemButton: {
+      styleOverrides: {
+        root: { borderRadius: 10 },
+      },
+    },
   },
 });
