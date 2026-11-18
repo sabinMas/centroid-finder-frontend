@@ -9,6 +9,15 @@ describe('hexToRgb', () => {
   it('accepts a leading # as well', () => {
     expect(hexToRgb('#00FF00')).to.deep.equal({ r: 0, g: 255, b: 0 });
   });
+
+  it('accepts lowercase hex digits', () => {
+    expect(hexToRgb('a1b2c3')).to.deep.equal({ r: 0xa1, g: 0xb2, b: 0xc3 });
+  });
+
+  it('throws on a string that is not a 6-digit hex color', () => {
+    expect(() => hexToRgb('zzzzzz')).to.throw();
+    expect(() => hexToRgb('FFF')).to.throw();
+  });
 });
 
 describe('colorDistance', () => {

@@ -9,8 +9,15 @@
  * @returns {{r: number, g: number, b: number}}
  */
 export function hexToRgb(hex) {
-  // TODO(sabinMas-dev): parse hex into {r, g, b}, each 0-255.
-  throw new Error('hexToRgb not implemented yet');
+  const normalized = hex.startsWith('#') ? hex.slice(1) : hex;
+  if (!/^[0-9a-fA-F]{6}$/.test(normalized)) {
+    throw new Error(`Invalid hex color: "${hex}"`);
+  }
+  return {
+    r: parseInt(normalized.slice(0, 2), 16),
+    g: parseInt(normalized.slice(2, 4), 16),
+    b: parseInt(normalized.slice(4, 6), 16),
+  };
 }
 
 /**
@@ -22,6 +29,8 @@ export function hexToRgb(hex) {
  * @returns {number} the distance between the two colors
  */
 export function colorDistance(colorA, colorB) {
-  // TODO(sabinMas-dev): implement the Euclidean distance formula.
-  throw new Error('colorDistance not implemented yet');
+  const deltaR = colorA.r - colorB.r;
+  const deltaG = colorA.g - colorB.g;
+  const deltaB = colorA.b - colorB.b;
+  return Math.sqrt(deltaR * deltaR + deltaG * deltaG + deltaB * deltaB);
 }
