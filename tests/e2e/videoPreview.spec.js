@@ -23,6 +23,16 @@ test('updating the threshold slider re-renders the canvas', async ({ page }) => 
   await expect(canvas).toBeVisible();
 });
 
+test('shows an error when the thumbnail fails to load', async ({ page }) => {
+  await page.route('**/thumbnail/**', function respondWithServerError(route) {
+    route.fulfill({ status: 500, json: { error: 'Error generating thumbnail' } });
+  });
+
+  await page.goto('/preview/salamander1.mp4');
+
+  await expect(page.getByText(/couldn't load this video's first frame/i)).toBeVisible();
+});
+
 test('clicking process shows a job status once the backend responds', async ({ page }) => {
   await page.route('**/process/salamander1.mp4*', function respondWithJobId(route) {
     route.fulfill({ json: { jobId: 'test-job-1' } });

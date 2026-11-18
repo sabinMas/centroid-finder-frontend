@@ -20,3 +20,14 @@ test('renders a list entry for each available video and navigates to its preview
 
   await expect(page).toHaveURL(/\/preview\/salamander1\.mp4$/);
 });
+
+test('falls back to sample videos with a notice when the backend is unreachable', async ({ page }) => {
+  await page.route('**/api/videos', function respondWithServerError(route) {
+    route.fulfill({ status: 500, json: { error: 'Error reading video directory' } });
+  });
+
+  await page.goto('/videos');
+
+  await expect(page.getByText(/couldn't reach the backend/i)).toBeVisible();
+  await expect(page.getByText('salamander1.mp4')).toBeVisible();
+});

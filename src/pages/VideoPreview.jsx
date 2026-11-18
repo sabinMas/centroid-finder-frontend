@@ -5,7 +5,7 @@
 // findLargestCentroid(), mock/jobs.js.
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box, Button, Container, Stack, Typography } from '@mui/material';
+import { Box, Button, Container, Paper, Stack, Typography } from '@mui/material';
 import { getThumbnailUrl } from '../api/thumbnail.js';
 import { startProcessingJob, getJobStatus } from '../api/process.js';
 import { ThumbnailCanvas } from '../components/ThumbnailCanvas.jsx';
@@ -15,8 +15,9 @@ import { JobStatusPanel } from '../components/JobStatusPanel.jsx';
 import { withLoading } from '../components/hoc/withLoading.jsx';
 import { addRecentJob } from '../lib/recentJobs.js';
 
-const DEFAULT_TARGET_COLOR_HEX = '570D0E';
-const DEFAULT_THRESHOLD = 35;
+// Tuned against the sample Ensatina video: isolates the salamander from the red backdrop.
+const DEFAULT_TARGET_COLOR_HEX = '4F080B';
+const DEFAULT_THRESHOLD = 60;
 const JOB_POLL_INTERVAL_MS = 2000;
 const TERMINAL_JOB_STATUSES = ['done', 'error'];
 
@@ -75,24 +76,26 @@ export function VideoPreview() {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h4" gutterBottom>
         {filename}
       </Typography>
-      <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
-        <ThumbnailCanvas
-          thumbnailUrl={getThumbnailUrl(filename)}
-          targetColorHex={targetColorHex}
-          threshold={threshold}
-        />
-        <Stack spacing={2} sx={{ minWidth: 220 }}>
+      <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} sx={{ alignItems: { md: 'center' } }}>
           <ColorPicker valueHex={targetColorHex} onChange={setTargetColorHex} />
-          <ThresholdSlider value={threshold} onChange={setThreshold} />
-          <Button variant="contained" onClick={handleProcessClick}>
+          <Box sx={{ flex: 1, minWidth: 200 }}>
+            <ThresholdSlider value={threshold} onChange={setThreshold} />
+          </Box>
+          <Button variant="contained" size="large" onClick={handleProcessClick}>
             Process Video with These Settings
           </Button>
         </Stack>
-      </Stack>
+      </Paper>
+      <ThumbnailCanvas
+        thumbnailUrl={getThumbnailUrl(filename)}
+        targetColorHex={targetColorHex}
+        threshold={threshold}
+      />
       <Box sx={{ mt: 3 }}>
         <JobStatusPanelWithLoading
           loading={isSubmittingJob}
