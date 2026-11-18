@@ -31,4 +31,23 @@ describe('binarize', () => {
     const result = binarize(imageData, 'FF0000', 10);
     expect(result.length).to.equal(2);
   });
+
+  it('returns an empty array for an empty image', () => {
+    const imageData = fakeImageData([]);
+    const result = binarize(imageData, 'FF0000', 10);
+    expect(result.length).to.equal(0);
+  });
+
+  it('marks nothing white when threshold is 0, even for an exact color match', () => {
+    const imageData = fakeImageData([[255, 0, 0]]);
+    const result = binarize(imageData, 'FF0000', 0);
+    expect(Array.from(result)).to.deep.equal([0]);
+  });
+
+  it('treats a distance exactly equal to the threshold as black (not white)', () => {
+    // distance from (255,0,0) to (245,0,0) is exactly 10
+    const imageData = fakeImageData([[245, 0, 0]]);
+    const result = binarize(imageData, 'FF0000', 10);
+    expect(Array.from(result)).to.deep.equal([0]);
+  });
 });

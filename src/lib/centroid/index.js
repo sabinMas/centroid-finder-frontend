@@ -15,16 +15,11 @@ import { findConnectedGroups } from './groupFinder.js';
  * @param {number} threshold - the distance threshold
  * @returns {{x: number, y: number} | null} the largest group's centroid, or null if no
  *   group was found
+ * @throws if targetColorHex is not a valid 6-digit hex color
  */
 export function findLargestCentroid(imageData, targetColorHex, threshold) {
-  // Until binarize()/findConnectedGroups() are implemented, return null (no dot drawn)
-  // rather than throwing, so the UI can be built and tested against this contract first.
-  try {
-    const binary = binarize(imageData, targetColorHex, threshold);
-    const groups = findConnectedGroups(binary, imageData.width, imageData.height);
-    if (groups.length === 0) return null;
-    return { x: groups[0].centroidX, y: groups[0].centroidY };
-  } catch {
-    return null;
-  }
+  const binary = binarize(imageData, targetColorHex, threshold);
+  const groups = findConnectedGroups(binary, imageData.width, imageData.height);
+  if (groups.length === 0) return null;
+  return { x: groups[0].centroidX, y: groups[0].centroidY };
 }
