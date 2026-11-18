@@ -15,7 +15,16 @@ import { colorDistance, hexToRgb } from './colorDistance.js';
  * @returns {Uint8Array} length width*height, one 0/1 entry per pixel
  */
 export function binarize(imageData, targetColorHex, threshold) {
-  // TODO(sabinMas-dev): walk imageData.data (RGBA quadruples), compare each pixel's
-  // color distance to targetColor (via colorDistance/hexToRgb) against threshold.
-  throw new Error('binarize not implemented yet');
+  const { data, width, height } = imageData;
+  const targetColor = hexToRgb(targetColorHex);
+  const pixelCount = width * height;
+  const binary = new Uint8Array(pixelCount);
+
+  for (let i = 0; i < pixelCount; i++) {
+    const offset = i * 4;
+    const pixelColor = { r: data[offset], g: data[offset + 1], b: data[offset + 2] };
+    binary[i] = colorDistance(pixelColor, targetColor) < threshold ? 1 : 0;
+  }
+
+  return binary;
 }
