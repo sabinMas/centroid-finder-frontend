@@ -4,8 +4,9 @@
 // api/process.js startProcessingJob()/getJobStatus(), lib/centroid/index.js
 // findLargestCentroid(), mock/jobs.js.
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Button, Container, Paper, Stack, Typography } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { getThumbnailUrl } from '../api/thumbnail.js';
 import { startProcessingJob, getJobStatus } from '../api/process.js';
 import { ThumbnailCanvas } from '../components/ThumbnailCanvas.jsx';
@@ -25,6 +26,7 @@ const JobStatusPanelWithLoading = withLoading(JobStatusPanel);
 
 export function VideoPreview() {
   const { filename } = useParams();
+  const navigate = useNavigate();
   const [targetColorHex, setTargetColorHex] = useState(DEFAULT_TARGET_COLOR_HEX);
   const [threshold, setThreshold] = useState(DEFAULT_THRESHOLD);
   const [jobId, setJobId] = useState(null);
@@ -75,8 +77,15 @@ export function VideoPreview() {
     }
   }
 
+  function handleBackClick() {
+    navigate('/videos');
+  }
+
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Button startIcon={<ArrowBackIcon />} onClick={handleBackClick} sx={{ mb: 2 }}>
+        Back to Videos
+      </Button>
       <Typography variant="h4" gutterBottom>
         {filename}
       </Typography>
