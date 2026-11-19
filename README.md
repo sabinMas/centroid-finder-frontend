@@ -76,3 +76,7 @@ All screenshots were captured against the live backend running the sample salama
 **Job complete**: once the job finishes, a link to the resulting CSV appears (one `time,x,y` row per sampled frame, `-1,-1` when no salamander is found).
 
 ![Video Preview with a finished job](docs/screenshots/video-preview-process-result.png)
+
+**Trail Replay** (`/replay/:filename/:jobId`): "Watch trail replay" (on a finished job, or the timeline icon in Recent Jobs) turns the CSV into an animated path over the video frame. You get a play/pause timeline you can scrub, a heatmap of where the salamander spent its time, and movement stats. The replay also detects **tracking glitches**: frames where the tracker jumped onto noise and then jumped back. They're marked with red crosses and left out of the distance and speed stats, so you know when to lower the threshold. The logic lives in `src/lib/trail.js` and is unit-tested.
+
+![Trail Replay](docs/screenshots/trail-replay.png)

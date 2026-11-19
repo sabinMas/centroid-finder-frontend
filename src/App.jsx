@@ -3,6 +3,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { VideoChooser } from './pages/VideoChooser.jsx';
 import { VideoPreview } from './pages/VideoPreview.jsx';
+import { TrailReplay } from './pages/TrailReplay.jsx';
 
 export default function App() {
   return (
@@ -10,6 +11,7 @@ export default function App() {
       <Route path="/" element={<Navigate to="/videos" replace />} />
       <Route path="/videos" element={<VideoChooser />} />
       <Route path="/preview/:filename" element={<VideoPreview />} />
+      <Route path="/replay/:filename/:jobId" element={<TrailReplay />} />
     </Routes>
   );
 }

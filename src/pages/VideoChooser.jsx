@@ -4,7 +4,21 @@
 // mock/videos.js mockVideoList, components/VideoListItem.jsx.
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Alert, Box, Button, Container, Divider, List, ListItemButton, ListItemText, Typography } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Button,
+  Container,
+  Divider,
+  IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import TimelineIcon from '@mui/icons-material/Timeline';
 import { getVideos } from '../api/videos.js';
 import { mockVideoList } from '../mock/videos.js';
 import { VideoListItem } from '../components/VideoListItem.jsx';
@@ -31,6 +45,10 @@ export function VideoChooser() {
 
   function handleVideoSelect(filename) {
     navigate(`/preview/${encodeURIComponent(filename)}`);
+  }
+
+  function handleReplaySelect(recentJob) {
+    navigate(`/replay/${encodeURIComponent(recentJob.filename)}/${recentJob.jobId}`);
   }
 
   function handleClearRecentJobs() {
@@ -68,7 +86,14 @@ export function VideoChooser() {
           </Box>
           <List dense>
             {recentJobList.map(function renderRecentJob(recentJob) {
-              return <RecentJobListItem key={recentJob.jobId} recentJob={recentJob} onClick={handleVideoSelect} />;
+              return (
+                <RecentJobListItem
+                  key={recentJob.jobId}
+                  recentJob={recentJob}
+                  onClick={handleVideoSelect}
+                  onReplay={handleReplaySelect}
+                />
+              );
             })}
           </List>
         </Box>
@@ -77,16 +102,31 @@ export function VideoChooser() {
   );
 }
 
-function RecentJobListItem({ recentJob, onClick }) {
+function RecentJobListItem({ recentJob, onClick, onReplay }) {
   function handleClick() {
     onClick(recentJob.filename);
+  }
+
+  function handleReplayClick() {
+    onReplay(recentJob);
   }
 
   const startedAtLabel = new Date(recentJob.startedAt).toLocaleString();
 
   return (
-    <ListItemButton onClick={handleClick} divider>
-      <Box
+    <ListItem
+      divider
+      disablePadding
+      secondaryAction={
+        <Tooltip title="Watch trail replay">
+          <IconButton edge="end" onClick={handleReplayClick} aria-label={`Watch trail replay for ${recentJob.filename}`}>
+            <TimelineIcon />
+          </IconButton>
+        </Tooltip>
+      }
+    >
+      <ListItemButton onClick={handleClick}>
+        <Box
         sx={{
           width: 16,
           height: 16,
@@ -96,7 +136,8 @@ function RecentJobListItem({ recentJob, onClick }) {
           flexShrink: 0,
         }}
       />
-      <ListItemText primary={recentJob.filename} secondary={`threshold ${recentJob.threshold} · ${startedAtLabel}`} />
-    </ListItemButton>
+        <ListItemText primary={recentJob.filename} secondary={`threshold ${recentJob.threshold} · ${startedAtLabel}`} />
+      </ListItemButton>
+    </ListItem>
   );
 }

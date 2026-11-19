@@ -111,6 +111,7 @@ export function VideoPreview() {
           status={jobStatus?.status ?? null}
           result={jobStatus?.result}
           error={jobStatus?.error}
+          replayPath={jobId ? `/replay/${encodeURIComponent(filename)}/${jobId}` : undefined}
         />
       </Box>
     </Container>
