@@ -1,4 +1,4 @@
-// OWNED BY onjamm-dev. See TASKS.md "onjamm's tasks" before editing.
+// Shows the state of a backend processing job (in progress, done, or failed).
 import { Alert, Button, LinearProgress, Stack } from '@mui/material';
 
 /**

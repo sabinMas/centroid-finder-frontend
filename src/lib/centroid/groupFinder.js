@@ -1,4 +1,3 @@
-// OWNED BY sabinMas-dev. See TASKS.md "sabinMas's tasks" before editing.
 // Port of DfsBinaryGroupFinder.java + Group.java's centroid/sort logic.
 
 /**

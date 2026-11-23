@@ -1,4 +1,4 @@
-// OWNED BY onjamm-dev. See TASKS.md "onjamm's tasks" before editing.
+// Hex color input for choosing the target color that the centroid search looks for.
 import { Box, Typography } from '@mui/material';
 
 /**

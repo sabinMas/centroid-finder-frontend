@@ -1,4 +1,3 @@
-// OWNED BY sabinMas-dev. See TASKS.md "sabinMas's tasks" before editing.
 // Port of EuclideanColorDistance.java + the hex-parsing helper from the Java project.
 
 /**

@@ -1,4 +1,4 @@
-// OWNED BY onjamm-dev. See TASKS.md "onjamm's tasks" before editing.
+// One clickable row in the Video Chooser list.
 import { ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import MovieIcon from '@mui/icons-material/Movie';
 

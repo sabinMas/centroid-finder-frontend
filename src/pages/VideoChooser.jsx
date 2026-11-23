@@ -1,7 +1,6 @@
-// OWNED BY onjamm-dev. See TASKS.md "onjamm's tasks" before editing.
 // Route: /videos
-// Contract to build against (frozen, don't edit): api/videos.js getVideos(),
-// mock/videos.js mockVideoList, components/VideoListItem.jsx.
+// Lists the videos the backend can process (api/videos.js getVideos()) and the user's
+// recent jobs. Clicking a video opens its preview page.
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Alert, Box, Button, Container, Divider, List, ListItemButton, ListItemText, Typography } from '@mui/material';

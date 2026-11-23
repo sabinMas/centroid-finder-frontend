@@ -1,4 +1,5 @@
-// OWNED BY onjamm-dev. See TASKS.md "onjamm's tasks" before editing.
+// Draws a video's thumbnail on a canvas, binarizes it in the browser, and marks the
+// largest centroid so the user can tune color and threshold before running a full job.
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Box, Typography } from '@mui/material';
 import { binarize } from '../lib/centroid/binarize.js';
