@@ -1,5 +1,5 @@
-// OWNED BY onjamm-dev. Local-storage backed history for the "recent jobs" feature
-// (TASKS.md Section 2, task 9) - self-contained, no backend involvement.
+// Local-storage backed history for the "recent jobs" feature. Self-contained, with no
+// backend involvement, so the list survives page reloads without a server round trip.
 
 const STORAGE_KEY = 'centroidFinder.recentJobs';
 const MAX_RECENT_JOBS = 10;
