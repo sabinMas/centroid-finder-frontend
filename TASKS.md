@@ -1,132 +1,142 @@
-# Task Plan: centroid-finder-frontend
+# Task Plan: centroid-finder-frontend (Wave 5: Improving)
 
-Goal: build the React frontend described in the "Centroid Finder Frontend" Canvas assignment, with two people working at the same time on two branches that can each be merged into `frontend` with **zero merge conflicts**, because the two tracks never write to the same file.
+Goal: build the Wave 5 improvements chosen in [priorityImprovements.md](priorityImprovements.md) on one branch per improvement. sabinMas and onjamm (and their AI agents) work at the same time without ever editing the same file on two open branches.
 
-## Branch layout
+This replaces the original build plan. That version is still in git history (the commit before this file changed).
+
+**This file is strict.** An agent working on a task may only create, edit, or delete the files listed under that task's **May touch**. Anything under **Must NOT touch**, or anything not listed at all, is off limits. If a task can't be finished without touching another file, the agent **stops and asks its human**. It doesn't work around the rule.
+
+---
+
+## Section 0: Rules for every task (both people, both agents)
+
+1. **One task = one branch = one PR.** Use the exact branch name given. Branch from the latest `main`:
+   ```
+   git checkout main && git pull
+   git checkout -b <branch-name>
+   ```
+2. **Only the files listed under "May touch".** No drive-by fixes, no formatting other files, no renames outside the list. If you spot another problem, write it down in the PR description under "Noticed, not fixed".
+3. **No new npm dependencies** in any Wave 5 task. `package.json` and `package-lock.json` are off limits for every task below.
+4. **Don't change the API contract.** The URLs and JSON shapes in `src/api/*.js` stay exactly as they are (see "Frozen contracts" below). The backend is being refactored at the same time and relies on them.
+5. **Commits:** small and frequent, pushed to your own branch. Every AI-assisted commit message starts with `AI Used`. Don't mix human-written and AI-written changes in one commit.
+6. **Before opening the PR:** run `npm run lint`, `npm test` and `npm run build`. Run `npm run test:e2e` if the task touches anything under `src/pages`, `src/components` or `tests/e2e`. All must pass.
+7. **PR:** from your branch into `main`. The title starts with the category, exactly as given in the task. Fill in: what changed, why, how you tested it, and "Noticed, not fixed".
+8. **Review:** the *other* partner reviews, leaves comments, and comments **LGTM** when satisfied. Nobody approves or merges their own PR without that LGTM.
+9. **After any PR merges into `main`,** everyone with an open branch merges `main` into it before continuing:
+   ```
+   git checkout <your-branch> && git merge main
+   ```
+10. **Don't delete old branches** (`main`, `frontend`, `onjamm-dev`, `sabinmas-dev`). The instructor still grades them.
+
+### Frozen contracts (read-only for every task)
+
+- `src/api/client.js`, `src/api/videos.js`, `src/api/thumbnail.js`, `src/api/process.js`: function names, URLs and return shapes.
+- `src/lib/centroid/index.js`: `findLargestCentroid(imageData, targetColorHex, threshold) → {x, y} | null`.
+- Routing in `src/App.jsx`: `/` redirects to `/videos`, `/videos`, `/preview/:filename`.
+
+---
+
+## Section 1: Ownership map
+
+| Area | Owner | Notes |
+|---|---|---|
+| `src/lib/**`, `src/api/**`, `src/App.jsx`, `src/main.jsx`, `src/theme.js`, `src/index.css` | **sabinMas** | |
+| `src/components/JobStatusPanel.jsx` | **sabinMas** | |
+| `tests/unit/**`, `.mocharc.json` | **sabinMas** | |
+| `README.md`, `TASKS.md`, `priorityImprovements.md`, `docs/**`, `.github/**`, `package.json`, `package-lock.json`, other root config | **sabinMas** | No Wave 5 task edits these, except the header-comment note under F-R1. |
+| `src/pages/**`, `src/components/**` (except `JobStatusPanel.jsx`), `src/components/hoc/**`, `src/mock/**` | **onjamm** | |
+| `tests/e2e/**`, `playwright.config.js` | **onjamm** | |
+
+**The one planned crossing:** F-R1 (sabinMas) removes the old `OWNED BY` / `FROZEN` / `Contract` header comments from files in onjamm's area. It changes **only those comment lines**, and it merges **before** onjamm starts F-E1. onjamm does backend tasks first, so nobody waits.
+
+---
+
+## Section 2: Merge order
 
 ```
-main
- └─ frontend          (integration branch - PRs land here first)
-     ├─ onjamm-dev     (onjamm's work)
-     └─ sabinmas-dev   (sabinmas's work)
+F-R1  (sabinMas)  ──merge──►  F-T1 (sabinMas)
+                    └──────►  F-E1 (onjamm, starts only after F-R1 is merged)
 ```
 
-Workflow: commit to your own `*-dev` branch, open a PR into `frontend` when ready, merge both into `frontend`, test the integrated app, then PR `frontend` into `main` for submission.
+- F-R1 merges first.
+- After that, F-T1 and F-E1 run in parallel. They share no files.
 
-## Section 1 - Framework & Schema Setup (done)
+---
 
-This section was completed already (by Claude, on `main`) before the dev branches were cut. It exists so both of you can build in parallel against a fixed contract instead of waiting on each other. **Neither dev branch should need to touch these files** - if you think you need to, stop and coordinate first, since a change here affects both of you.
+## Section 3: sabinMas's tasks
 
-What's in place:
+**You own:** everything marked sabinMas in Section 1.
+**You must NOT touch:** `src/pages/**`, `src/components/**` (except `JobStatusPanel.jsx`, and the F-R1 header lines), `src/mock/**`, `tests/e2e/**`, `playwright.config.js`.
 
-- **Tooling**: Vite + React 19 + React Router 7 + MUI installed. Mocha + Chai for unit tests, Playwright for e2e tests. `npm run dev` serves on **port 5180** (pinned in `vite.config.js` via `strictPort` - chosen because port 5173 was already in use on our machine; don't change it back without checking first).
-- **Dev proxy**: `vite.config.js` proxies `/api`, `/thumbnail`, `/process`, `/results`, `/videos` to `http://localhost:3000` (the Express backend), so components can `fetch('/api/videos')` directly with no CORS setup.
-- **Routing shell** (`src/App.jsx`, `src/main.jsx`): `/` redirects to `/videos`; `/videos` and `/preview/:filename` are wired to page components. `main.jsx` already wraps the app in MUI's `ThemeProvider`/`CssBaseline` and React Router's `BrowserRouter`.
-- **API client contract** (`src/api/*.js` - fully implemented, frozen):
-  - `getVideos()` → `GET /api/videos` → `Promise<string[]>`
-  - `getThumbnailUrl(filename)` → returns the string `/thumbnail/:filename` (use directly as an `<img>`/canvas source)
-  - `startProcessingJob(filename, targetColorHex, threshold)` → `POST /process/:filename?targetColor=&threshold=` → `Promise<{jobId}>`
-  - `getJobStatus(jobId)` → `GET /process/:jobId/status` → `Promise<{status:'processing'} | {status:'done', result} | {status:'error', error}>`
-- **Mock data contract** (`src/mock/*.js` - frozen): `mockVideoList`, `mockJobId`, `mockJobStatuses` (`.processing`/`.done`/`.error`), matching the real API shapes above.
-- **`lib/centroid` contract** (`src/lib/centroid/*.js` - signatures frozen, bodies are `sabinmas-dev`'s to implement): the single function UI code should call is `findLargestCentroid(imageData, targetColorHex, threshold) → {x, y} | null`. It currently always returns `null` (safe no-op) so the UI builds and runs before the real algorithm lands.
-- **Component/page stubs** (signatures frozen, bodies are `onjamm-dev`'s to implement): every component in `src/components/` and `src/pages/` exists with the right props/exports and renders a `TODO` placeholder, so routing and imports all work out of the box.
-- **Test scaffolding**: `tests/unit/*.test.js` (Mocha/Chai, currently failing - that's intentional, they're `sabinmas-dev`'s targets) and `tests/e2e/videoChooser.spec.js` (Playwright, currently passing).
+### F-R1: Remove Vite scaffold CSS and stale ownership headers
 
-If either of you genuinely needs a new npm dependency, add it on your own branch, mention it in your PR description, and resolve `package-lock.json` conflicts by re-running `npm install` after merging (a lockfile conflict is the one acceptable exception to the "never touch the same file" rule, and it's mechanical to fix).
+- **Category / PR title:** `Refactoring: removed Vite scaffold CSS and stale ownership headers`
+- **Branch:** `refactoring/remove-scaffold-dead-code`
+- **Depends on:** nothing. **Merge first.**
+- **May touch:**
+  - `src/index.css`: delete the Vite starter rules. If nothing is worth keeping, delete the file.
+  - `src/main.jsx`: only to remove the `index.css` import, if the file is deleted.
+  - The top-of-file comment lines that say `OWNED BY ...`, `FROZEN ...`, or `Contract to build against ...` in: `src/App.jsx`, `src/theme.js`, `src/lib/recentJobs.js`, `src/lib/centroid/*.js`, `src/components/*.jsx`, `src/components/hoc/withLoading.jsx`, `src/pages/VideoChooser.jsx`, `src/pages/VideoPreview.jsx`.
+- **Must NOT touch:** any line of code other than those comment lines; `tests/**`; `src/mock/**`; `README.md`; `TASKS.md`; `package*.json`.
+- **Keep:** comments that explain what a file does or why (for example "Port of DistanceImageBinarizer.java"). Only the ownership and frozen markers go.
+- **Done when:**
+  - The app looks the same or better with only MUI's `CssBaseline` and `theme.js`. Check both pages in the browser, in light and dark OS mode.
+  - No file in `src/` mentions `OWNED BY`, `FROZEN`, or `TASKS.md`.
+  - Lint, unit tests, build and e2e all pass.
 
-## Section 2 - onjamm's tasks (branch: `onjamm-dev`)
+### F-T1: Unit tests for recentJobs.js and the API client
 
-**You own, and are the only one who should edit:**
-```
-src/pages/VideoChooser.jsx
-src/pages/VideoPreview.jsx
-src/components/VideoListItem.jsx
-src/components/ThumbnailCanvas.jsx
-src/components/ThresholdSlider.jsx
-src/components/ColorPicker.jsx
-src/components/JobStatusPanel.jsx
-src/components/hoc/withLoading.jsx
-src/theme.js
-tests/e2e/**
-```
-You may **import** (never edit) anything under `src/api/`, `src/mock/`, and `src/lib/centroid/` (via `findLargestCentroid`) - those are frozen contracts from Section 1.
+- **Category / PR title:** `Tests: added unit tests for recentJobs and the API client`
+- **Branch:** `tests/recent-jobs-and-api-client`
+- **Depends on:** F-R1 merged.
+- **May touch:**
+  - New files in `tests/unit/`, such as `recentJobs.test.js`, `client.test.js`, and `api.test.js`. A small shared test helper in `tests/unit/` is fine.
+  - `.mocharc.json`: only to register a test setup file, if one is needed (for example, for a fake `localStorage` or `fetch`).
+- **Must NOT touch:** anything in `src/`. These are tests only. If a test exposes a bug, record it in the PR under "Noticed, not fixed". Don't fix it in this branch.
+- **Cover at least:**
+  - `recentJobs.js`: the empty history; newest first; the cap of 10; `clearRecentJobs`; stored JSON that's corrupt; stored JSON that isn't an array (record the current behavior and the bug); `localStorage` throwing on read and on write.
+  - `api/client.js` `fetchJson`: a 2xx JSON body; a non-2xx with an `{ error }` body (the message comes through); a non-2xx with no body (the generic message); a 204 or non-JSON body.
+  - `api/videos.js`, `api/process.js`, `api/thumbnail.js`: the exact URL and method each one uses, including that filenames with spaces or `#` are encoded.
+- **Done when:** `npm test` passes and the new tests fail if you deliberately break the code they cover (check this locally, then undo the break).
 
-### Tasks
+---
 
-1. **Video Chooser page** (`src/pages/VideoChooser.jsx`, route `/videos`)
-   - `useEffect` + `useState` to call `getVideos()` from `src/api/videos.js`; fall back to `mockVideoList` from `src/mock/videos.js` if the fetch fails (backend might not be running yet).
-   - Render one `VideoListItem` per video.
-   - Clicking an item navigates to `/preview/:filename` (`useNavigate`).
-   - Style the list with MUI (`List`/`ListItemButton`, a page heading, etc.).
+## Section 4: onjamm's tasks
 
-2. **VideoListItem** (`src/components/VideoListItem.jsx`)
-   - Replace the placeholder `<div>` with an MUI `ListItemButton`/`Card` showing the filename, calling `onClick(filename)`.
+**You own:** everything marked onjamm in Section 1.
+**You must NOT touch:** `src/lib/**`, `src/api/**`, `src/App.jsx`, `src/main.jsx`, `src/theme.js`, `src/index.css`, `src/components/JobStatusPanel.jsx`, `tests/unit/**`, `README.md`, `package*.json`, `.github/**`.
 
-3. **Video Preview & Processing page** (`src/pages/VideoPreview.jsx`, route `/preview/:filename`)
-   - `useParams()` for `:filename`.
-   - Render `ThumbnailCanvas`, `ThresholdSlider`, `ColorPicker` side by side.
-   - State for `targetColorHex` (default e.g. `"570D0E"`, matching the processor's validated salamander color from `plan.md` in the backend repo) and `threshold` (default e.g. `35`).
-   - A "Process Video with These Settings" button that calls `startProcessingJob(filename, targetColorHex, threshold)` from `src/api/process.js`, stores the returned `jobId`.
-   - Poll `getJobStatus(jobId)` (e.g. every 2s with `setInterval` inside a `useEffect`, cleared on unmount or once status is `done`/`error`) and pass the result into `JobStatusPanel`.
-   - Wrap the processing section (or the whole page) with `withLoading` for the initial load state - this satisfies the assignment's HOC requirement.
+### F-E1: Replace the silent mock-video fallback with an error and Retry
 
-4. **ThumbnailCanvas** (`src/components/ThumbnailCanvas.jsx`)
-   - Load `getThumbnailUrl(filename)` into an `<img>`, draw it to a `<canvas>`, read `ImageData` via `getImageData()`.
-   - Call `findLargestCentroid(imageData, targetColorHex, threshold)` (from `src/lib/centroid/index.js`) whenever `targetColorHex`/`threshold` change.
-   - Render two canvases side by side: the original thumbnail, and a binarized version with a dot drawn at the returned centroid (if not `null`). You can draw the binarized pixels yourself here for the visual (black/white per-pixel), independent of what `findLargestCentroid` returns internally - or import `binarize` from `lib/centroid` too if that's easier (it's part of the same frozen module, read-only).
-   - This updates live as the slider/color picker change (that's "live tuning" in the assignment).
+- **Category / PR title:** `Error handling: Video Chooser shows a retry state instead of mock videos`
+- **Branch:** `error-handling/video-list-retry`
+- **Depends on:** F-R1 merged. Start after your backend tasks B-R3 and B-T1, or as soon as F-R1 is in.
+- **May touch:**
+  - `src/pages/VideoChooser.jsx`
+  - `src/mock/videos.js` and `src/mock/jobs.js`: delete them, and the `src/mock/` folder, once nothing imports them. Search the whole repo first. Only `VideoChooser.jsx` should import them.
+  - `tests/e2e/videoChooser.spec.js`
+  - Optionally one new presentational component in `src/components/` (for example, an error-and-retry or empty-state box), if it keeps the page readable.
+- **Must NOT touch:** `src/api/**` (use `getVideos()` as it is); `src/pages/VideoPreview.jsx`; `src/components/JobStatusPanel.jsx`; `README.md`. The README still mentions the mock fallback. Put that in "Noticed, not fixed" so sabinMas can update it in a later docs task.
+- **Behavior to build:**
+  - **Loading:** while the list is being fetched, show a loading state (the existing `withLoading` HOC is a good fit).
+  - **Error:** if `getVideos()` fails, show a clear error message and a Retry button that tries again. Never show fake videos.
+  - **Empty:** if the backend returns an empty list, say so ("No videos found") instead of showing nothing.
+  - **Success:** unchanged. The list renders and clicking navigates to `/preview/:filename`.
+  - Recent Jobs must keep working in every state above.
+- **Done when:**
+  - The e2e spec covers loading-then-success, error-then-retry-success, and empty, with the API mocked via `page.route`. The old "falls back to sample videos" test is replaced.
+  - No file in the repo imports from `src/mock/`.
+  - Lint, unit tests, build and e2e all pass.
 
-5. **ThresholdSlider / ColorPicker** - swap the placeholder `<input>` elements for a real MUI `Slider` and a styled color input (MUI has no built-in color picker; a plain `<input type="color">` styled with `sx`, or a small library, is fine).
+---
 
-6. **JobStatusPanel** - style with MUI (`Alert` for error, `LinearProgress`/`CircularProgress` for processing, a `Link`/`Button` to the CSV for done).
+## Section 5: Why this split causes no conflicts
 
-7. **withLoading HOC** (`src/components/hoc/withLoading.jsx`) - implement it for real: when `loading` is true, render a centered `CircularProgress`; otherwise render the wrapped component.
+- sabinMas's two tasks only touch `src/index.css`, header comment lines (F-R1, merged first), and new files in `tests/unit/` (F-T1).
+- onjamm's task only touches `src/pages/VideoChooser.jsx`, `src/mock/`, `tests/e2e/videoChooser.spec.js`, and optionally one new component file.
+- The only file both people's tasks touch is `src/pages/VideoChooser.jsx`. F-R1 removes its header comment, and F-E1 changes its code. F-R1 merges before F-E1 starts, so F-E1 branches from a `main` that already has the header removed.
+- Nobody edits `src/api/**`, `package*.json`, or the README in Wave 5, so the frozen contracts and the backend stay compatible.
 
-8. **Styling** - fill out `src/theme.js` (palette, typography, spacing) for a consistent, attractive look across both pages.
+## Backlog (not in Wave 5)
 
-9. **One unique feature of your choice** - pick something self-contained that doesn't require touching `sabinmas-dev`'s files, e.g.:
-   - A "recent jobs" history (stored in `localStorage`) shown on the Video Chooser page.
-   - A dark-mode toggle (extends `src/theme.js`).
-   - Drag-and-drop reordering or filtering of the video list.
-
-10. **Tests** (`tests/e2e/*.spec.js`, Playwright) - cover: the `/` → `/videos` redirect (already written), the video list rendering and navigating to a preview page, the slider/color picker updating the canvas, and the process button triggering a job status display (mock the API responses with Playwright's route interception, or run against the real backend if it's up).
-
-## Section 3 - sabinmas's tasks (branch: `sabinmas-dev`)
-
-**You own, and are the only one who should edit:**
-```
-src/lib/centroid/colorDistance.js
-src/lib/centroid/binarize.js
-src/lib/centroid/groupFinder.js
-src/lib/centroid/index.js
-tests/unit/**
-```
-You should not need to touch anything under `src/components/`, `src/pages/`, `src/theme.js`, or `tests/e2e/`.
-
-This is a direct port of the Part 1 Java classes you and onjamm already wrote in the `centroid-finder` repo - same algorithms, same edge cases, just in JavaScript operating on a canvas `ImageData` buffer instead of a `BufferedImage`.
-
-### Tasks
-
-1. **`colorDistance.js`** - port of `EuclideanColorDistance.java`:
-   - `hexToRgb(hex)`: parse a `"RRGGBB"` (optionally `"#RRGGBB"`) string into `{r, g, b}`.
-   - `colorDistance(colorA, colorB)`: `sqrt((r1-r2)^2 + (g1-g2)^2 + (b1-b2)^2)`.
-   - Make `tests/unit/colorDistance.test.js` pass (already written, describes the expected behavior - this mirrors how you started with tests in the Java course).
-
-2. **`binarize.js`** - port of `DistanceImageBinarizer.toBinaryArray`:
-   - `binarize(imageData, targetColorHex, threshold)`: walk `imageData.data` (a flat `Uint8ClampedArray` of RGBA quadruples, so pixel `i`'s red is at `data[i*4]`), compute each pixel's distance to the target color via `colorDistance`/`hexToRgb`, and return a `Uint8Array` of length `width*height` (not `width*height*4`) with `1` where distance `< threshold`, else `0`.
-   - Make `tests/unit/binarize.test.js` pass.
-
-3. **`groupFinder.js`** - port of `DfsBinaryGroupFinder.java` + `Group.java`'s centroid/sort logic:
-   - `findConnectedGroups(binary, width, height)`: flood-fill (DFS or BFS, same idea as the Java version) over 4-connected (not diagonal) groups of `1`s in the flat `binary` array, compute each group's centroid via **integer division** (`Math.trunc` or `| 0`, matching Java's int division) of the summed x/y coordinates, and return an array of `{size, centroidX, centroidY}` sorted **descending by size** (ties don't need to match Java's exact tiebreak unless a test requires it - check `tests/unit/groupFinder.test.js` for what's actually asserted).
-   - Make `tests/unit/groupFinder.test.js` pass.
-
-4. **`index.js`** - already wires `binarize` + `findConnectedGroups` into `findLargestCentroid`. You shouldn't need to change this file once the three above are correct, but double check it once your pieces are done (it currently swallows errors into `null` - decide with onjamm whether that's still the right behavior once the real implementation lands, since a thrown error during development now means "not implemented," but after your work lands it would mean a real bug).
-
-5. **Tests** (`tests/unit/*.test.js`, Mocha/Chai) - the three files above already have failing tests describing the contract (run `npm test` to see them). Add more as you find edge cases worth covering (empty image, single-pixel groups, a target color matching nothing, thresholds of 0, etc.) - same spirit as the thorough Java unit tests from Part 1.
-
-## Why this split causes no conflicts
-
-- `onjamm-dev` only ever edits files under `src/components/`, `src/pages/`, `src/theme.js`, and `tests/e2e/`.
-- `sabinmas-dev` only ever edits files under `src/lib/centroid/` and `tests/unit/`.
-- Both import from `src/api/` and `src/mock/`, but neither edits them (they're frozen from Section 1).
-- The one shared file either might touch is `package.json`/`package-lock.json` if a new dependency is needed - call it out in your PR description so the other person knows, and resolve any lockfile conflict with a fresh `npm install`.
+Everything else in `priorityImprovements.md` (F-R2, F-T2, F-E2, F-D1, F-D2, F-P1, F-P2, F-S1, F-S2, F-B1, F-B2, F-O1) is backlog. If you finish early and want to add one, add it to this file first with its own **May touch** list and owner, and get your partner's OK before starting.
