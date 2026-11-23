@@ -2,7 +2,7 @@
 
 Scoped to `sabinMas/centroid-finder-frontend`. This file only lists improvements for this repo. The shared Google doc [priorityImprovements](https://docs.google.com/document/d/1u7U2ftQbZdAJyk1OF5iQ6v1unYbatToOxnap652U4Tk/edit) covers both repos together, including the concerns they share.
 
-**Status: draft for review.** These are AI-ranked proposals pulled from `humanImprovements.md` and `robotImprovements.md`. The assignment says the two of us decide the final top two per category, so edit freely. Once it's settled, this becomes the basis for the new `TASKS.md`.
+**Status: Wave 5 set chosen.** The rest are AI-ranked proposals pulled from `humanImprovements.md` and `robotImprovements.md`. The assignment says the two of us decide the final top two per category, so edit freely. Once it's settled, this becomes the basis for the new `TASKS.md`.
 
 ## What the assignment asks for
 
@@ -11,14 +11,27 @@ Scoped to `sabinMas/centroid-finder-frontend`. This file only lists improvements
 
 ## Lanes (who owns which files in this repo)
 
-- **sabinMas:** `src/lib/**`, `src/api/**`, `src/App.jsx`, `src/components/JobStatusPanel.jsx`, `src/index.css`, `tests/unit/**`, `README.md`, `package.json` and `package-lock.json`, `.github/**`, `docs/`
+- **sabinMas:** `src/lib/**`, `src/api/**`, `src/App.jsx`, `src/main.jsx`, `src/theme.js`, `src/components/JobStatusPanel.jsx`, `src/index.css`, `tests/unit/**`, `README.md`, `package.json` and `package-lock.json`, `.github/**`, `docs/`
 - **onjamm:** `src/pages/**`, `src/components/**` (except `JobStatusPanel.jsx`), a new `src/hooks/**` folder, `src/mock/` (to delete), `tests/e2e/**`
 
 Lanes follow the split that already worked in the original `TASKS.md`, so the two agents almost never edit the same file.
 
-## Recommended starter set
+## Chosen for Wave 5 (confirmed)
 
-Across both repos, these 8 branches meet the Wave 5 minimum (at least 6, every required category covered) and give each partner 4 branches with no file overlap. The ones in this repo:
+We picked these 8 branches across both repos: 4 for sabinMas and 4 for onjamm. Together they cover every required category and clear the minimum of 6. The exact steps, file ownership and merge order for this repo are in `TASKS.md`. Everything else in this file stays as backlog.
+
+| ID | Category | Owner | Reviewer | Branch | Repo |
+|---|---|---|---|---|---|
+| F-R1 | Refactoring code | sabinMas | onjamm | `refactoring/remove-scaffold-dead-code` | **this repo** |
+| F-T1 | Adding tests | sabinMas | onjamm | `tests/recent-jobs-and-api-client` | **this repo** |
+| B-T2 | Adding tests | sabinMas | onjamm | `tests/restore-video-fixture` | backend |
+| B-E1 | Improving error handling | sabinMas | onjamm | `error-handling/exit-codes-and-exceptions` | backend |
+| B-R3 | Refactoring code | onjamm | sabinMas | `refactoring/extract-job-runner` | backend |
+| F-E1 | Improving error handling | onjamm | sabinMas | `error-handling/video-list-retry` | **this repo** |
+| B-T1 | Adding tests | onjamm | sabinMas | `tests/fix-ci-workflow` | backend |
+| B-D2 | Writing documentation | onjamm | sabinMas | `docs/readme-and-server-jsdoc` | backend |
+
+The ones in this repo:
 
 - **F-R1** (Refactoring code, sabinMas): Remove Vite scaffold CSS and stale ownership headers (`refactoring/remove-scaffold-dead-code`)
 - **F-T1** (Adding tests, sabinMas): Unit tests for recentJobs.js and api/client.js (`tests/recent-jobs-and-api-client`)
@@ -30,10 +43,10 @@ Across both repos, these 8 branches meet the Wave 5 minimum (at least 6, every r
 
 #### F-R1: Remove Vite scaffold CSS and stale ownership headers
 
-- **Why:** Most of src/index.css is leftover Vite starter CSS that fights the MUI theme, and every file still says OWNED BY / FROZEN from the old parallel-branch plan. Old TASKS.md moves to docs/ so the new TASKS.md can take its place.
+- **Why:** Most of src/index.css is leftover Vite starter CSS that fights the MUI theme, and every file still says OWNED BY / FROZEN from the old parallel-branch plan. 
 - **Branch:** `refactoring/remove-scaffold-dead-code`
 - **Suggested owner:** sabinMas
-- **Files this branch may touch:** src/index.css; the 1-3 header comment lines at the top of files in src/; TASKS.md (move to docs/)
+- **Files this branch may touch:** src/index.css; src/main.jsx (only the index.css import, if the file is deleted); the OWNED BY / FROZEN / Contract header comment lines at the top of files in src/
 - **Collision notes:** Touches the top of many files, so merge this FIRST before any other frontend branch starts.
 - **PR title:** "Refactoring: removed Vite scaffold CSS and stale ownership headers"
 
@@ -182,7 +195,7 @@ Across both repos, these 8 branches meet the Wave 5 minimum (at least 6, every r
 - **sabinMas:** F-R1 → F-T1 → F-S1 → F-P1 → F-D1 → F-B1 → F-S2 → F-O1
 - **onjamm:** F-E1 → F-E2 → F-R2 → F-P2 → F-B2 → F-T2 → F-D2
 
-The two lanes run in parallel. Exception: F-R1 touches the top of most files, so merge it before the onjamm lane starts. F-P2 also waits for F-P1 from the other lane.
+The two lanes run in parallel. Exception: F-R1 touches the header comments of most files in src/, so it merges before the onjamm frontend lane starts (onjamm works on backend tasks first). F-P2 also waits for F-P1 from the other lane.
 
 ## Deferred (not this round)
 
