@@ -1,4 +1,4 @@
-# fobot Improvements (Wave 3: AI Improvements)
+# Robot Improvements (Wave 3: AI Improvements)
 
 This is the AI pass over `centroid-finder-frontend`. It builds on our Wave 2 notes in [humanImprovements.md](humanImprovements.md) and the Google doc, and it follows the prompt we were given:
 
