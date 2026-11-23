@@ -1,4 +1,4 @@
-// OWNED BY onjamm-dev. See TASKS.md "onjamm's tasks" before editing.
+// Slider for the color-distance threshold used by the live binarized preview.
 import { Box, Slider, Typography } from '@mui/material';
 
 /**

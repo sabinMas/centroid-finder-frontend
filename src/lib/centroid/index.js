@@ -1,5 +1,4 @@
-// OWNED BY sabinMas-dev. See TASKS.md "sabinMas's tasks" before editing.
-// Public entry point that onjamm-dev's UI components import. Combines binarize() and
+// Public entry point that the UI components import. Combines binarize() and
 // findConnectedGroups() into the single call a live preview needs.
 
 import { binarize } from './binarize.js';

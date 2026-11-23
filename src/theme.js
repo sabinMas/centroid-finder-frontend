@@ -1,4 +1,5 @@
-// OWNED BY onjamm-dev. See TASKS.md "onjamm's tasks" before editing.
+// Shared MUI theme. Together with CssBaseline (in main.jsx) it is the app's only
+// global styling, so colors and typography are changed here rather than in CSS files.
 import { createTheme } from '@mui/material/styles';
 
 export const theme = createTheme({

@@ -1,4 +1,3 @@
-// OWNED BY sabinMas-dev. See TASKS.md "sabinMas's tasks" before editing.
 // Port of DistanceImageBinarizer.java's toBinaryArray, adapted to a flat ImageData buffer.
 
 import { colorDistance, hexToRgb } from './colorDistance.js';

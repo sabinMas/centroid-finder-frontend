@@ -1,8 +1,7 @@
-// OWNED BY onjamm-dev. See TASKS.md "onjamm's tasks" before editing.
 // Route: /preview/:filename
-// Contract to build against (frozen, don't edit): api/thumbnail.js getThumbnailUrl(),
-// api/process.js startProcessingJob()/getJobStatus(), lib/centroid/index.js
-// findLargestCentroid(), mock/jobs.js.
+// Live preview of one video's thumbnail: the user tunes target color and threshold
+// (computed in the browser by lib/centroid), then starts a backend processing job
+// (api/process.js) and watches its status.
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Button, Container, Paper, Stack, Typography } from '@mui/material';

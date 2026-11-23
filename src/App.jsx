@@ -1,5 +1,5 @@
-// FROZEN - framework/schema setup. Both dev branches add page content inside the
-// existing routes below, but shouldn't need to edit this file itself.
+// Top-level route table. "/" redirects to the Video Chooser, and each page owns
+// its own data loading, so this file only maps URLs to page components.
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { VideoChooser } from './pages/VideoChooser.jsx';
 import { VideoPreview } from './pages/VideoPreview.jsx';

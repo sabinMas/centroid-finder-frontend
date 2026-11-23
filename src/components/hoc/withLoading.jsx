@@ -1,4 +1,3 @@
-// OWNED BY onjamm-dev. See TASKS.md "onjamm's tasks" before editing.
 // This is the required higher-order component (HOC) for the assignment.
 import { CircularProgress, Box } from '@mui/material';
 
