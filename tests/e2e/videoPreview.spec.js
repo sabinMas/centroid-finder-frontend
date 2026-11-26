@@ -47,7 +47,7 @@ test('clicking process shows a job status once the backend responds', async ({ p
     route.fulfill({ json: { jobId: 'test-job-1' } });
   });
   await page.route('**/process/test-job-1/status', function respondWithDoneStatus(route) {
-    route.fulfill({ json: { status: 'done', result: '/results/test-job-1.csv' } });
+    route.fulfill({ json: { status: 'done', result: '/results/3f2b8c1e-9a4d-4e6f-8b7a-1c2d3e4f5a6b.csv' } });
   });
 
   await page.goto('/preview/salamander1.mp4');
@@ -55,4 +55,20 @@ test('clicking process shows a job status once the backend responds', async ({ p
 
   await expect(page.getByText(/processing complete/i)).toBeVisible();
   await expect(page.getByRole('link', { name: /download csv/i })).toBeVisible();
+});
+
+// F-S1: a result link that is not /results/<uuid>.csv must never become a download href.
+test('shows an error instead of a download link when the result link is not a results path', async ({ page }) => {
+  await page.route('**/process/salamander1.mp4*', function respondWithJobId(route) {
+    route.fulfill({ json: { jobId: 'test-job-2' } });
+  });
+  await page.route('**/process/test-job-2/status', function respondWithBadLink(route) {
+    route.fulfill({ json: { status: 'done', result: 'javascript:alert(1)' } });
+  });
+
+  await page.goto('/preview/salamander1.mp4');
+  await page.getByRole('button', { name: /process video/i }).click();
+
+  await expect(page.getByText(/invalid result link/i)).toBeVisible();
+  await expect(page.getByRole('link', { name: /download csv/i })).toHaveCount(0);
 });
