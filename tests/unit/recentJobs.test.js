@@ -58,13 +58,51 @@ describe('recentJobs', () => {
       }
     });
 
-    // Records CURRENT behavior, which is a bug (see "Noticed, not fixed" in the PR):
-    // valid JSON that isn't an array is returned as-is instead of being treated as
-    // empty, so callers that expect an array get an object back (VideoChooser would
-    // then fail when it calls .map on it).
-    it('returns stored JSON that is not an array unchanged (current behavior, a bug)', () => {
-      storage.setItem(STORAGE_KEY, JSON.stringify({ jobId: 'not-a-list' }));
-      expect(loadRecentJobs()).to.deep.equal({ jobId: 'not-a-list' });
+    // F-S1: valid JSON that is not an array used to be returned as-is, which broke
+    // VideoChooser (it calls .map on the result). It now counts as an empty history.
+    it('returns an empty array when the stored JSON is not an array', () => {
+      for (const value of [{ jobId: 'not-a-list' }, 'text', 7, true, null]) {
+        storage.setItem(STORAGE_KEY, JSON.stringify(value));
+        expect(loadRecentJobs()).to.deep.equal([]);
+      }
+    });
+
+    // The color goes into a style attribute in VideoChooser, so it must be six hex digits.
+    it('drops entries whose color is not six hex digits', () => {
+      const badColors = ['red', 'FF00', 'FF00000', '#FF0000', 'GG0000', 'red;background:url(x)', '', 123456, null];
+      for (const targetColorHex of badColors) {
+        storage.setItem(STORAGE_KEY, JSON.stringify([{ ...makeJob(1), targetColorHex }]));
+        expect(loadRecentJobs(), String(targetColorHex)).to.deep.equal([]);
+      }
+    });
+
+    it('accepts lower-case and upper-case hex colors', () => {
+      const jobs = [{ ...makeJob(1), targetColorHex: 'ff00aa' }, { ...makeJob(2), targetColorHex: 'FF00AA' }];
+      storage.setItem(STORAGE_KEY, JSON.stringify(jobs));
+      expect(loadRecentJobs()).to.deep.equal(jobs);
+    });
+
+    it('drops entries with a missing or wrongly typed field', () => {
+      const broken = [
+        null,
+        'text',
+        42,
+        [],
+        {},
+        { ...makeJob(1), filename: 5 },
+        { ...makeJob(1), jobId: undefined },
+        { ...makeJob(1), threshold: '60' },
+        { ...makeJob(1), threshold: null },
+        { ...makeJob(1), startedAt: 12 },
+      ];
+      storage.setItem(STORAGE_KEY, JSON.stringify(broken));
+      expect(loadRecentJobs()).to.deep.equal([]);
+    });
+
+    it('keeps the good entries and drops only the bad ones', () => {
+      const stored = [makeJob(1), { ...makeJob(2), targetColorHex: 'nope' }, makeJob(3)];
+      storage.setItem(STORAGE_KEY, JSON.stringify(stored));
+      expect(loadRecentJobs()).to.deep.equal([makeJob(1), makeJob(3)]);
     });
   });
 
@@ -99,13 +137,12 @@ describe('recentJobs', () => {
       expect(loadRecentJobs()).to.deep.equal([makeJob(1)]);
     });
 
-    // Records CURRENT behavior, which is a bug: because loadRecentJobs doesn't check
-    // for an array, addRecentJob tries to spread a plain object and throws a TypeError.
-    // VideoPreview's catch block then shows that TypeError as a job error, even though
-    // the backend job really did start.
-    it('throws when the stored JSON is an object instead of an array (current behavior, a bug)', () => {
+    // F-S1: this used to throw a TypeError (spreading a plain object), which VideoPreview
+    // then showed as a job error even though the backend job had started.
+    it('starts a fresh list when the stored JSON is an object instead of an array', () => {
       storage.setItem(STORAGE_KEY, JSON.stringify({ jobId: 'not-a-list' }));
-      expect(() => addRecentJob(makeJob(1))).to.throw(TypeError);
+      expect(() => addRecentJob(makeJob(1))).to.not.throw();
+      expect(loadRecentJobs()).to.deep.equal([makeJob(1)]);
     });
 
     it('does not throw when localStorage throws on write (history just is not saved)', () => {
